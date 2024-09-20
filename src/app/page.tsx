@@ -1,7 +1,5 @@
 // personal-task-manager/src/app/page.tsx 
-import AddTaskButton from '@/components/AddTaskButton';
-import RefreshTasksButton from '@/components/RefreshTasksButton';
-import TaskList from '@/components/TaskList';
+import TasksPage from '@/components/TasksDisplayPage';
 
 import { db } from '@/db/client';
 import { tasks } from '@/db/schema';
@@ -13,13 +11,9 @@ export default async function Home() {
   return (
     < main className="flex flex-col gap-10 p-10" >
       < div className="flex justify-between items-center" >
-        < h1 className="text-xl font-bold" > Task List </ h1 >
-        < div className="flex gap-2" >
-          < AddTaskButton />
-          < RefreshTasksButton />
-        </ div >
+        < h1 className="text-xl font-bold" > Simple Task Management </ h1 >
       </ div >
-      < TaskList initialTasks={taskList} />
+      < TasksPage initialTasks={taskList} />
     </ main >
   );
 }

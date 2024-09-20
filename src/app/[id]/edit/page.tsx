@@ -1,4 +1,4 @@
-// src/app/[id]/edit/page.tsx
+// personal-task-manager/src/app/[id]/edit/page.tsx
 'use client';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -21,8 +21,7 @@ export default function EditTaskPage({ params }: { params: { id: number } }) {
   const mutation = useMutation<Task, Error, Task>({
     mutationFn: updateTask,
     onSuccess: () => {
-      console.log('Task updated successfully.');
-      router.push('/'); // Redirect to task list or appropriate page
+      router.push('/');
     },
   });
 
@@ -35,7 +34,7 @@ export default function EditTaskPage({ params }: { params: { id: number } }) {
       description: String(formData.get('description')),
       dueDate: String(formData.get('dueDate')),
       priority: String(formData.get('priority')),
-      updatedAt: new Date().toISOString(), // Optionally handle timestamp
+      updatedAt: new Date().toISOString(),
     };
     mutation.mutate(updatedTask);
   };
@@ -44,23 +43,23 @@ export default function EditTaskPage({ params }: { params: { id: number } }) {
   if (isError || !task) return <p>Error fetching task or no task found.</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 p-10 bg-white shadow-md rounded-lg">
       <div>
-        <label className="block text-sm font-medium">Title</label>
-        <Input name="title" defaultValue={task.title} required />
+        <label className="block text-sm font-medium text-gray-700">Title</label>
+        <Input name="title" defaultValue={task.title} required className="mt-1 w-full" />
       </div>
       <div>
-        <label className="block text-sm font-medium">Description</label>
-        <Textarea name="description" defaultValue={task.description} required />
+        <label className="block text-sm font-medium text-gray-700">Description</label>
+        <Textarea name="description" defaultValue={task.description} required className="mt-1 w-full" />
       </div>
       <div>
-        <label className="block text-sm font-medium">Due Date</label>
-        <Input type="date" name="dueDate" defaultValue={task.dueDate} required />
+        <label className="block text-sm font-medium text-gray-700">Due Date</label>
+        <Input type="date" name="dueDate" defaultValue={task.dueDate} required className="mt-1 w-full" />
       </div>
       <div>
-        <label className="block text-sm font-medium">Priority</label>
+        <label className="block text-sm font-medium text-gray-700">Priority</label>
         <Select name="priority" defaultValue={task.priority}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full mt-1">
             <SelectValue placeholder="Select priority" />
           </SelectTrigger>
           <SelectContent>
@@ -70,11 +69,11 @@ export default function EditTaskPage({ params }: { params: { id: number } }) {
           </SelectContent>
         </Select>
       </div>
-      <Button type="submit" disabled={mutation.isPending}>
+      <Button type="submit" disabled={mutation.isPending} className="w-full mt-4">
         {mutation.isPending ? 'Updating...' : 'Update Task'}
       </Button>
-      {mutation.isError && <p className="text-red-500">Error: {mutation.error.message}</p>}
-      {mutation.isSuccess && <p className="text-green-500">Task updated successfully!</p>}
+      {mutation.isError && <p className="text-red-500 mt-2">Error: {mutation.error.message}</p>}
+      {mutation.isSuccess && <p className="text-green-500 mt-2">Task updated successfully!</p>}
     </form>
   );
 }

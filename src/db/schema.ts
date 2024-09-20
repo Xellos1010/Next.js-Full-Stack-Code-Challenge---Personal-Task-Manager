@@ -2,24 +2,6 @@
 import { sql } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-export type Task = {
-  id: number;
-  title: string;
-  description: string;
-  dueDate: string;
-  isCompleted: boolean;
-  priority: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type NewTask = {
-  title: string;
-  description: string;
-  dueDate: string;
-  priority: string;
-};
-
 export const tasks = sqliteTable('tasks', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   title: text('title').notNull(),
@@ -35,5 +17,5 @@ export const tasks = sqliteTable('tasks', {
     .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 });
 
-// export type Task = typeof tasks.$inferSelect;
-// export type NewTask = typeof tasks.$inferInsert;
+export type Task = typeof tasks.$inferSelect;
+export type NewTask = typeof tasks.$inferInsert;

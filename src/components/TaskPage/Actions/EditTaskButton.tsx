@@ -1,4 +1,3 @@
-// personal-task-manager/src/app/[id]/EditTaskButton.tsx
 'use client';
 
 import { useState } from 'react';
@@ -9,22 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-
-async function updateTaskApi(updatedTask: Task): Promise<Task> {
-    const response = await fetch(`/api/tasks/${updatedTask.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedTask),
-    });
-  
-    if (!response.ok) {
-      throw new Error('Failed to update task');
-    }
-  
-    return response.json();
-  }
+import { useToast } from "@/hooks/use-toast"
+import { updateTaskApi } from '@/api/tasks';
 
 type EditTaskButtonProps = {
     task: Task;
@@ -33,11 +18,15 @@ type EditTaskButtonProps = {
 export default function EditTaskButton({ task }: EditTaskButtonProps) {
     const [isEditing, setIsEditing] = useState(false);
     const router = useRouter();
+    const { toast } = useToast()
 
     const mutation = useMutation({
         mutationFn: updateTaskApi,
         onSuccess: () => {
-            console.log('Task updated successfully.');
+            toast({
+                title: "Task Editted successfully",
+                description: task.title, //More task information can be added here
+              })
             setIsEditing(false);
             router.refresh();
         },
@@ -62,7 +51,7 @@ export default function EditTaskButton({ task }: EditTaskButtonProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-6"> {/* Add margin to push it down */}
             <div>
                 <label className="block text-sm font-medium">Title</label>
                 <Input name="title" defaultValue={task.title} required />
@@ -88,11 +77,13 @@ export default function EditTaskButton({ task }: EditTaskButtonProps) {
                     </SelectContent>
                 </Select>
             </div>
-            <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Updating...' : 'Save'}
-            </Button>
+            <div className="flex space-x-4">
+                <Button type="submit" disabled={mutation.isPending}>
+                    {mutation.isPending ? 'Updating...' : 'Save'}
+                </Button>
+                <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+            </div>
             {mutation.isError && <p className="text-red-500">Error: {mutation.error.message}</p>}
-            {mutation.isSuccess && <p className="text-green-500">Task updated successfully!</p>}
         </form>
     );
 }
