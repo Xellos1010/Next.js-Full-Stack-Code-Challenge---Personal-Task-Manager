@@ -26,14 +26,12 @@ import { useState } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
-// Update the schema to include 'id'
+// Update the schema to include 'id' and ensure dueDate is a Date
 const EditTaskSchema = z.object({
   id: z.number(), // Task ID is required
   title: z.string().min(1, { message: "Title is required." }),
   description: z.string().min(1, { message: "Description is required." }),
-  dueDate: z.date({
-    required_error: "Due date is required.",
-  }),
+  dueDate: z.date({ required_error: "Due date is required." }),
   priority: z.enum(["High", "Medium", "Low"]),
 });
 
@@ -41,16 +39,28 @@ type EditTaskFormProps = {
   task: Task;
 };
 
+type FormData = z.infer<typeof EditTaskSchema>;
+
+type ApiTaskData = Omit<FormData, 'dueDate'> & {
+  dueDate: string;  // dueDate as ISO string for API
+  isCompleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export default function EditTaskForm({ task }: EditTaskFormProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: async (data: Task) => {
+    mutationFn: async (data: FormData) => {
       console.log("Submitting updated task:", data);  // Logging task data before API call
-      const formattedData = {
+      const formattedData: ApiTaskData = {
         ...data,
         dueDate: data.dueDate.toISOString(),  // Convert date to string for API
+        isCompleted: false,  // Placeholder value, adjust accordingly
+        createdAt: new Date().toISOString(),  // Placeholder value, adjust accordingly
+        updatedAt: new Date().toISOString(),  // Placeholder value, adjust accordingly
       };
       console.log("Formatted task data:", formattedData);  // Logging formatted data
       return await updateTaskApi(formattedData);
@@ -64,18 +74,18 @@ export default function EditTaskForm({ task }: EditTaskFormProps) {
     },
   });
 
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(EditTaskSchema),
     defaultValues: {
       id: task.id,  // Pass task ID as part of the form values
       title: task.title,
       description: task.description,
       dueDate: new Date(task.dueDate),
-      priority: task.priority || 'Medium',
+      priority: (task.priority as "High" | "Medium" | "Low") || 'Medium',
     },
   });
 
-  const handleSubmit = (data: Task) => {
+  const handleSubmit = (data: FormData) => {
     console.log("Form submitted with data:", data);  // Logging form submission data
     mutation.mutate(data);
   };

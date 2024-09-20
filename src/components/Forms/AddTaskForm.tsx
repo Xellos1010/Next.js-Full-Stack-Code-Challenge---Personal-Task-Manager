@@ -34,17 +34,19 @@ const FormSchema = z.object({
   priority: z.enum(["High", "Medium", "Low"]),
 });
 
+type FormData = z.infer<typeof FormSchema>;
+
 export default function AddTaskForm() {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (data: FormData) => {
       if (!data) throw new Error("Invalid data");
       const formattedData = {
         ...data,
-        dueDate: data.dueDate.toISOString()
+        dueDate: data.dueDate!.toISOString()
       };
       console.log('Submitting task with data:', formattedData);
       return await addTaskApi(formattedData);
@@ -58,17 +60,17 @@ export default function AddTaskForm() {
     },
   });
 
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: '',
       description: '',
-      dueDate: null,
+      dueDate: undefined,
       priority: 'Medium'
     }
   });
 
-  const handleSubmit = (data) => {
+  const handleSubmit = (data: FormData) => {
     console.log('Handle submit triggered with data:', data);
     mutation.mutate(data);
   };
