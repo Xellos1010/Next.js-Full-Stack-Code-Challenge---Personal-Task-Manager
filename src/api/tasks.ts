@@ -1,3 +1,4 @@
+// src/api/tasks.ts
 import { NewTask, Task } from "@/db/schema";
 
 
@@ -63,4 +64,16 @@ export const updateTaskApi = async (updatedTask: Task): Promise<Task> => {
 export const deleteTaskApi = async (id: number): Promise<void> => {
   const res = await fetch(`${BASE_URL}/api/tasks/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete task');
+};
+
+export const completeTaskApi = async (taskId: number): Promise<Task> => {
+  const res = await fetch(`${BASE_URL}/api/completeTask`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ taskId }),
+  });
+  if (!res.ok) throw new Error('Failed to complete task');
+  return res.json();
 };

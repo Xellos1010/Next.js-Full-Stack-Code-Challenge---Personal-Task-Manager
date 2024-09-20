@@ -34,3 +34,29 @@ export async function getTasks() {
     if (!result) throw new Error('Tasks not found');
     return result;
 }
+
+// Mark task as completed
+export async function completeTask(taskId: number): Promise<Task> {
+    const [task] = await db.update(tasks)
+        .set({ isCompleted: true })
+        .where(eq(tasks.id, taskId))
+        .returning();
+    return task;
+}
+
+// Toggle task completion status
+export async function toggleTaskCompletion(taskId: number): Promise<Task> {
+    // Fetch the current task
+    const task = await fetchTask(taskId);
+
+    // Toggle the completion status
+    const newStatus = !task.isCompleted;
+
+    // Save the updated task back to the database
+    const [updatedTask] = await db.update(tasks)
+        .set({ isCompleted: newStatus })
+        .where(eq(tasks.id, taskId))
+        .returning();
+
+    return updatedTask;
+}

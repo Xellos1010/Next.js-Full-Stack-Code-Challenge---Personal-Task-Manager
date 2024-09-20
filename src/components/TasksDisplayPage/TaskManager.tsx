@@ -20,8 +20,8 @@ export default function TaskManager({ initialTasks }: TaskManagerProps) {
   };
 
   useEffect(() => {
-    // Optionally, you can fetch and set tasks on component mount. This is commented out so that the refresh button functionality can be tested.
-    // refreshTasks();
+    // Optionally, you can fetch and set tasks on component mount. Comment out so that the refresh button functionality can be tested.
+    refreshTasks();
   }, []);
 
   return (

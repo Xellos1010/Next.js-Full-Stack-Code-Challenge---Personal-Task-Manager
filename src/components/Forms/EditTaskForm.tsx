@@ -34,7 +34,7 @@ const EditTaskSchema = z.object({
   dueDate: z.date({
     required_error: "Due date is required.",
   }),
-  priority: z.string(),
+  priority: z.enum(["High", "Medium", "Low"]),
 });
 
 type EditTaskFormProps = {
@@ -147,7 +147,7 @@ export default function EditTaskForm({ task }: EditTaskFormProps) {
             name="priority"
             control={form.control}
             render={({ field }) => (
-              <Select {...field}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className="w-full mt-1">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>

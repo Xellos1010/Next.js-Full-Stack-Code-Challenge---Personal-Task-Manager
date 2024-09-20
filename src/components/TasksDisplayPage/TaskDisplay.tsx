@@ -18,6 +18,7 @@ export default function TaskDisplay({ task }: TaskProps) {
             <span className="text-gray-500 ml-2">
               - Due: {new Date(task.dueDate).toLocaleDateString()}
             </span>
+            {task.isCompleted && <span className="ml-2 text-green-700">[Completed]</span>}
           </div>
           <div
             className={`text-sm font-medium ${task.priority === 'High'

@@ -31,10 +31,8 @@ const FormSchema = z.object({
   dueDate: z.date().nullable().refine(val => val !== null, {
     message: "Due date is required."
   }),
-  priority: z.string(),
+  priority: z.enum(["High", "Medium", "Low"]),
 });
-
-
 
 export default function AddTaskForm() {
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -42,7 +40,7 @@ export default function AddTaskForm() {
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data) => {
       if (!data) throw new Error("Invalid data");
       const formattedData = {
         ...data,
@@ -62,7 +60,7 @@ export default function AddTaskForm() {
 
   const form = useForm({
     resolver: zodResolver(FormSchema),
-    defaultValues: { // Ensure initial state has valid values to avoid undefined errors.
+    defaultValues: {
       title: '',
       description: '',
       dueDate: null,
@@ -70,14 +68,14 @@ export default function AddTaskForm() {
     }
   });
 
-  const handleSubmit = (data: { title: string; description: string; dueDate: Date; priority: string; }) => {
+  const handleSubmit = (data) => {
     console.log('Handle submit triggered with data:', data);
     mutation.mutate(data);
   };
 
   const handleCancel = () => {
-    form.reset(); // Reset the form to its default values
-    router.back(); // Navigate back to the previous page
+    form.reset();
+    router.back();
   };
 
   return (
@@ -117,7 +115,7 @@ export default function AddTaskForm() {
                       onSelect={(date) => {
                         console.log('Date selected:', date);
                         field.onChange(date || undefined);
-                        setPopoverOpen(false); // Close the calendar on date selection
+                        setPopoverOpen(false);
                       }}
                       disabled={(date) => {
                         const todayTimestamp = new Date().setHours(0, 0, 0, 0);
@@ -139,7 +137,7 @@ export default function AddTaskForm() {
             name="priority"
             control={form.control}
             render={({ field }) => (
-              <Select {...field} defaultValue="Medium">
+              <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className="w-full mt-1">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
@@ -156,7 +154,6 @@ export default function AddTaskForm() {
           <Button type="submit" disabled={mutation.isPending} className="flex-1">
             {mutation.isPending ? 'Adding...' : 'Add Task'}
           </Button>
-          {/* Cancel Button */}
           <Button type="button" onClick={handleCancel} variant="outline" className="flex-1">
             Cancel
           </Button>
