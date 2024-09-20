@@ -1,5 +1,5 @@
 // personal-task-manager/src/components/EditTaskPageActionBar.tsx
-import BackButton from "./BackButton";
+import BackButton from "../BackButton";
 
 export default function EditTaskPageActionBar() {
   return (

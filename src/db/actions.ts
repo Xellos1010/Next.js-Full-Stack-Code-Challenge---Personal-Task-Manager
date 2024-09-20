@@ -1,7 +1,7 @@
 // src/db/actions.ts
-import { db } from './client';
-import { tasks, Task, NewTask } from './schema';
 import { eq } from 'drizzle-orm';
+import { db } from './client';
+import { NewTask, Task, tasks } from './schema';
 
 // Fetch a single task by ID
 export async function fetchTask(id: number): Promise<Task> {
@@ -28,13 +28,9 @@ export async function deleteTask(taskId: number): Promise<void> {
     await db.delete(tasks).where(eq(tasks.id, taskId)).execute();
 }
 
-// export function addTask(task: string) {
-//     const stmt = db.prepare('INSERT INTO tasks (name) VALUES (?)');
-//     stmt.run(task);
-//   }
-  
-  export async function getTasks() {
+
+export async function getTasks() {
     const result = await db.select().from(tasks).execute()
     if (!result) throw new Error('Tasks not found');
     return result;
-  }
+}

@@ -1,7 +1,7 @@
 // personal-task-manager/src/components/TasksDisplayPage/index.tsx
-import dynamic from "next/dynamic";
 import { fetchTasks } from "@/api/tasks";
 import { Task } from "@/db/schema";
+import dynamic from "next/dynamic";
 
 // Dynamically import the TaskManager with no SSR
 const TaskManager = dynamic(() => import("./TaskManager"), { ssr: false });

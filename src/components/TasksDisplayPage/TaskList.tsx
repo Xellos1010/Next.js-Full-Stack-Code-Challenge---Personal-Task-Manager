@@ -1,6 +1,6 @@
 // personal-task-manager/src/components/TaskList.tsx
 import { Task } from '@/db/schema';
-import TaskDisplay from '../TaskDisplay';
+import TaskDisplay from './TaskDisplay';
 
 interface TaskListProps {
   tasks: Task[];

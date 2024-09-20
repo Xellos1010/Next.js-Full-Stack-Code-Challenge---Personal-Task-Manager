@@ -1,7 +1,8 @@
 // personal-task-manager/src/app/[id]/page.tsx
+
+import EditTaskActionBar from '@/components/EditTaskPage/EditTaskActionBar';
+import EditTaskPageActionBar from '@/components/EditTaskPage/EditTaskPageActionBar';
 import { fetchTask } from '@/db/actions';
-import EditTaskPageActionBar from '@/components/EditTaskPageActionBar';
-import EditTaskActionBar from '@/components/EditTaskActionBar';
 
 export default async function TaskDetailPage({ params }: { params: { id: number } }) {
   const task = await fetchTask(Number(params.id));

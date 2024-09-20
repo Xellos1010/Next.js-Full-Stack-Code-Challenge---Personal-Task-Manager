@@ -1,30 +1,34 @@
 'use client';
 
-import { addTaskApi } from '@/api/tasks';
+import { updateTaskApi } from '@/api/tasks'; // API call for updating task
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage
-} from './ui/form';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Task } from '@/db/schema';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from '@tanstack/react-query';
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
-const FormSchema = z.object({
+// Update the schema to include 'id'
+const EditTaskSchema = z.object({
+  id: z.number(), // Task ID is required
   title: z.string().min(1, { message: "Title is required." }),
   description: z.string().min(1, { message: "Description is required." }),
   dueDate: z.date({
@@ -33,45 +37,60 @@ const FormSchema = z.object({
   priority: z.string(),
 });
 
-export default function AddTaskForm() {
+type EditTaskFormProps = {
+  task: Task;
+};
+
+export default function EditTaskForm({ task }: EditTaskFormProps) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (data: Task) => {
+      console.log("Submitting updated task:", data);  // Logging task data before API call
       const formattedData = {
         ...data,
-        dueDate: data.dueDate.toISOString()
+        dueDate: data.dueDate.toISOString(),  // Convert date to string for API
       };
-      console.log('Submitting task with data:', formattedData);
-      return await addTaskApi(formattedData);
+      console.log("Formatted task data:", formattedData);  // Logging formatted data
+      return await updateTaskApi(formattedData);
     },
     onSuccess: () => {
-      console.log('Task added successfully!');
+      console.log("Task updated successfully");  // Logging success
       router.push('/');
     },
     onError: (error) => {
-      console.error('Error adding task:', error);
+      console.error('Error updating task:', error);  // Logging error
     },
   });
 
   const form = useForm({
-    resolver: zodResolver(FormSchema),
-    defaultValues: { // Ensure initial state has valid values to avoid undefined errors.
-      title: '',
-      description: '',
-      dueDate: null,
-      priority: 'Medium'
-    }
+    resolver: zodResolver(EditTaskSchema),
+    defaultValues: {
+      id: task.id,  // Pass task ID as part of the form values
+      title: task.title,
+      description: task.description,
+      dueDate: new Date(task.dueDate),
+      priority: task.priority || 'Medium',
+    },
   });
 
-  const handleSubmit = (data) => {
-    console.log('Handle submit triggered with data:', data);
+  const handleSubmit = (data: Task) => {
+    console.log("Form submitted with data:", data);  // Logging form submission data
     mutation.mutate(data);
+  };
+
+  const handleCancel = () => {
+    form.reset(); // Reset the form to its default values
+    router.back(); // Navigate back to the previous page
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* The task ID is included in form data but not displayed to the user */}
+        <input type="hidden" {...form.register('id')} />
+
         <div>
           <label className="block text-sm font-medium text-gray-700">Title</label>
           <Input {...form.register('title')} placeholder="Task Title" required className="mt-1 w-full" />
@@ -87,7 +106,7 @@ export default function AddTaskForm() {
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Due Date</FormLabel>
-                <Popover>
+                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
@@ -104,8 +123,9 @@ export default function AddTaskForm() {
                       mode="single"
                       selected={field.value}
                       onSelect={date => {
-                        console.log('Date selected:', date);
+                        console.log("Date selected:", date);  // Logging selected date
                         field.onChange(date);
+                        setPopoverOpen(false); // Close the calendar on date selection
                       }}
                       disabled={(date) => {
                         const todayTimestamp = new Date().setHours(0, 0, 0, 0);
@@ -127,7 +147,7 @@ export default function AddTaskForm() {
             name="priority"
             control={form.control}
             render={({ field }) => (
-              <Select {...field} defaultValue="Medium">
+              <Select {...field}>
                 <SelectTrigger className="w-full mt-1">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
@@ -141,11 +161,20 @@ export default function AddTaskForm() {
           />
         </div>
 
-        <Button type="submit" disabled={mutation.isPending} className="w-full mt-4">
-          {mutation.isPending ? 'Adding...' : 'Add Task'}
-        </Button>
+        <div className="flex space-x-2">
+          {/* Update Button */}
+          <Button type="submit" disabled={mutation.isPending} className="flex-1">
+            {mutation.isPending ? 'Updating...' : 'Update Task'}
+          </Button>
+
+          {/* Cancel Button */}
+          <Button type="button" onClick={handleCancel} variant="outline" className="flex-1">
+            Cancel
+          </Button>
+        </div>
+
         {mutation.isError && <p className="text-red-500 mt-2">Error: {mutation.error?.message}</p>}
-        {mutation.isSuccess && <p className="text-green-500 mt-2">Task added successfully!</p>}
+        {mutation.isSuccess && <p className="text-green-500 mt-2">Task updated successfully!</p>}
       </form>
     </Form>
   );

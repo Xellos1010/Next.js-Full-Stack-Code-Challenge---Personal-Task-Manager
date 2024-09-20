@@ -1,7 +1,8 @@
 // personal-task-manager/src/components/EditTaskActionBar.tsx
-import DeleteTaskButton from '@/components/TaskPage/Actions/DeleteTaskButton';
-import EditTaskButton from '@/components/TaskPage/Actions/EditTaskButton';
+
 import { Task } from '@/db/schema';
+import DeleteTaskButton from './Actions/DeleteTaskButton';
+import EditTaskButton from './Actions/EditTaskButton';
 
 type EditTaskActionBarProps = {
   task: Task;
