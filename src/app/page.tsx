@@ -1,9 +1,15 @@
-import Welcome from '@/components/welcome';
+import React from 'react';
+import { db } from '@/db/client';
+import { tasks } from '@/db/schema';
+import TaskList from '@/components/task-list';
 
-export default function Home() {
+// This runs on the server
+export default async function Home() {
+  const taskList = await db.select().from(tasks);
+
   return (
     <main className="flex flex-col gap-10 p-10">
-      <Welcome />
+      <TaskList initialTasks={taskList} />
     </main>
   );
 }
