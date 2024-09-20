@@ -77,3 +77,15 @@ export const completeTaskApi = async (taskId: number): Promise<Task> => {
   if (!res.ok) throw new Error('Failed to complete task');
   return res.json();
 };
+
+export const toggleTaskCompletionApi = async (taskId: number): Promise<Task> => {
+  const res = await fetch(`${BASE_URL}/api/toggleTaskCompletion`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ taskId }),
+  });
+  if (!res.ok) throw new Error('Failed to toggle task completion status');
+  return res.json();
+};

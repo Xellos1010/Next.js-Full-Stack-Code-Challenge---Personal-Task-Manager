@@ -1,6 +1,6 @@
-// src/components/EditTaskPage/Actions/MarkCompleteButton.tsx
 "use client";
 
+import { toggleTaskCompletionApi } from '@/api/tasks';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -20,21 +20,9 @@ const MarkCompleteButton: React.FC<MarkCompleteButtonProps> = ({ taskId, isCompl
 
   const handleToggleCompletion = async () => {
     try {
-      const response = await fetch('/api/toggleTaskCompletion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ taskId }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle task completion status');
-      }
-
-      const result = await response.json();
-      setCompleted(result.task.isCompleted);
-      console.log('Task toggled:', result.task);
+      const result = await toggleTaskCompletionApi(taskId);
+      setCompleted(result.isCompleted);
+      console.log('Task toggled:', result);
 
       // Optionally refresh or notify the user
       router.push('/');
