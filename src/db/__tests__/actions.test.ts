@@ -1,4 +1,6 @@
+import { sql } from 'drizzle-orm'; // Adjust the import based on your actual setup
 import { addTask, deleteTask, fetchTask, getTasks, updateTask } from '../actions';
+import { db } from '../client';
 import { NewTask, Task, tasks } from '../schema';
 
 // Mock the database methods
@@ -14,14 +16,48 @@ const mockWhereUpdate = jest.fn(() => ({ returning: mockReturning }));
 const mockDelete = jest.fn();
 const mockWhereDelete = jest.fn(() => ({ execute: jest.fn() }));
 
-jest.mock('../client', () => ({
-  db: {
-    select: () => ({ from: mockFrom }),
-    insert: () => ({ values: mockValues }),
-    update: () => ({ set: mockSet }),
-    delete: () => ({ where: mockWhereDelete }),
-  },
-}));
+jest.mock('../client', () => {
+  const mockExecute = jest.fn();
+  const mockSelectFrom = jest.fn(() => ({
+    execute: mockExecute,
+  }));
+
+  return {
+    db: {
+      select: jest.fn(() => ({
+        from: jest.fn(() => ({
+          execute: mockExecute,
+        })),
+      })),
+      insert: jest.fn(() => ({ values: mockValues })),
+      update: jest.fn(() => ({ set: mockSet })),
+      delete: jest.fn(() => ({ where: mockWhereDelete })),
+      run: jest.fn(), // Mock the run method as well
+    },
+  };
+});
+
+// Setup and teardown for the test environment
+beforeAll(async () => {
+
+  // Create the tasks table
+  await db.run(sql`CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    dueDate TEXT NOT NULL,
+    isCompleted BOOLEAN NOT NULL,
+    priority TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    updatedAt TEXT NOT NULL
+  )`);
+});
+
+afterEach(async () => {
+  // Clear the tasks table after each test
+  await db.run(sql`DELETE FROM tasks`);
+  jest.clearAllMocks();
+});
 
 describe('DB Actions', () => {
   afterEach(() => {
