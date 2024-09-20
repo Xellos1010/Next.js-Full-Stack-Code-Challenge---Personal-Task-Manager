@@ -1,25 +1,20 @@
 // personal-task-manager/src/components/TasksDisplayPage/index.tsx
+import dynamic from "next/dynamic";
+import { fetchTasks } from "@/api/tasks";
+import { Task } from "@/db/schema";
 
-import { fetchTasks } from '@/api/tasks';
-import TaskList from './TaskList';
-import { Task } from '@/db/schema';
-import ActionBar from './ActionBar';
+// Dynamically import the TaskManager with no SSR
+const TaskManager = dynamic(() => import("./TaskManager"), { ssr: false });
 
-// This function will get the tasks on the server-side
 export async function getServerSideProps() {
-    const initialTasks = await fetchTasks();
-    return {
-        props: {
-            initialTasks,
-        },
-    };
+  const initialTasks = await fetchTasks();
+  return {
+    props: {
+      initialTasks,
+    },
+  };
 }
 
 export default function TasksPage({ initialTasks }: { initialTasks: Task[] }) {
-    return (
-        <main className="p-10">
-            <ActionBar />
-            <TaskList initialTasks={initialTasks} />
-        </main>
-    );
+  return <TaskManager initialTasks={initialTasks} />;
 }
