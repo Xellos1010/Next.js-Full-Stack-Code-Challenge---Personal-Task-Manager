@@ -1,9 +1,10 @@
+// personal-task-manager/src/components/task-list.tsx
+
 'use client'; // Mark this component as a client component
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Task } from '@/db/schema';
-import { fetchTask } from '@/db/actions';
 
 async function fetchTasks(): Promise<Task[]> {
   // Fetch logic if you want to use client-side fetching

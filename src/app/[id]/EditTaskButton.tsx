@@ -1,15 +1,30 @@
-// src/app/[id]/EditTaskButton.tsx
+// personal-task-manager/src/app/[id]/EditTaskButton.tsx
 'use client';
 
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Task } from '@/db/schema';
-import { updateTask } from '@/db/actions';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+
+async function updateTaskApi(updatedTask: Task): Promise<Task> {
+    const response = await fetch(`/api/tasks/${updatedTask.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedTask),
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to update task');
+    }
+  
+    return response.json();
+  }
 
 type EditTaskButtonProps = {
     task: Task;
@@ -20,11 +35,11 @@ export default function EditTaskButton({ task }: EditTaskButtonProps) {
     const router = useRouter();
 
     const mutation = useMutation({
-        mutationFn: (updatedTask: Task) => updateTask(updatedTask),
+        mutationFn: updateTaskApi,
         onSuccess: () => {
             console.log('Task updated successfully.');
             setIsEditing(false);
-            router.refresh(); // Refresh the page or refetch queries as needed
+            router.refresh();
         },
     });
 
@@ -37,7 +52,7 @@ export default function EditTaskButton({ task }: EditTaskButtonProps) {
             description: String(formData.get('description')),
             dueDate: String(formData.get('dueDate')),
             priority: String(formData.get('priority')),
-            updatedAt: new Date().toISOString(), // Optionally handle timestamp
+            updatedAt: new Date().toISOString(),
         };
         mutation.mutate(updatedTask);
     };
