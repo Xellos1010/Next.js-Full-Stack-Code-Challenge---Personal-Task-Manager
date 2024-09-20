@@ -113,3 +113,49 @@ We will evaluate your submission based on:
 - Late submissions are welcome and will be reviewed, though priority will be given to timely submissions
 
 Good luck! We're excited to see your solution.
+
+## Features Implemented
+
+- **Task Management**:
+  - Create, view, edit, and delete tasks.
+  - Task fields include title, description, due date, priority, and completion status.
+  
+- **Form Handling & Validation**:
+  - Uses React Hook Form for form handling and Zod for validation.
+  - Input validation for all fields (title, description, due date, etc.).
+
+- **Data Persistence**:
+  - SQLite is used for local storage with Drizzle ORM.
+  - Database schema includes fields for task management.
+  
+- **API Endpoints**:
+  - Custom API routes for task CRUD operations.
+  - Task operations are handled through server actions and mutations.
+  
+- **UI & Styling**:
+  - Tailwind CSS is used for styling.
+  - Radix UI components like buttons, modals, and notifications.
+  
+- **Testing**:
+  - Jest setup for unit tests of task API and database actions.
+  - Comprehensive tests for sequential task operations (CRUD).
+
+## Testing
+
+Unit tests are set up using Jest. Tests cover task creation, editing, deletion, and database interactions.
+
+To run tests:
+
+bash
+Copy code
+pnpm test
+Known Issues
+
+Database unit tests are not fully passing due to time constraints.
+Full test coverage is not yet implemented.
+Timeline
+
+## Timeline of the project
+
+Work started at 9 PM on September 19th and was submitted at 4:15 PM on September 20th, completing the core features within 19 hours.
+
